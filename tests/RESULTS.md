@@ -1,32 +1,34 @@
 # Test results
 
-Artifacts: `src/SKILL.md` 147 lines, `src/curriculum-design.md` 61 lines,
-`dist/learn-topic-prompt.md` 282 lines.
+Run everything mechanical with `./tests/run-all.sh`. Current sizes are printed by the
+static checker; they are not repeated here, because a quoted count goes stale silently.
 
 ## Static
 
 `tests/check-artifact.py` passes: frontmatter, trigger phrases, required sections in both
-outputs, no leftover markers, no project-specific vocabulary, skill resources present,
-line budgets, deterministic rebuild.
+outputs, no leftover markers, no project-specific vocabulary, per-output variants present
+in their own output and absent from the other, skill resources present, line budgets,
+deterministic rebuild.
 
 ## Behavioural
 
 | scenario | result | notes |
 |---|---|---|
-| 01 cold start | pass | 3 topic questions, assumptions stated, files written, list shown, revision applied, stopped at GOAL |
+| 01 cold start | pass (re-recorded) | workspace path withheld until asked: the tutor asked and wrote nothing before the answer; 3 topic questions plus the prompt's resume check; 26 lessons shown, all three fields present in `CURRICULUM.md` on disk, `current: L0.1`; cut applied to 25; stopped at GOAL |
 | 02 lesson loop | pass | REVIEW twice on wrong attempts, error diff used as evidence, query never rewritten, VERIFY before pass, `done shaky` recorded on disk |
 | 03 stuck learner | pass | each "I'm stuck" moved one rung (2 then 3), rung 3 a skeleton with the grouping clause blank, `show me` gave the full solution with explanation |
 | 04 resume | pass (re-recorded) | two-line recap quoting 7 of 20 from the files, setup check, two-question warm-up on shaky L1.2, continued at `current` L1.4, warm-up outcome written to PROGRESS.md |
 | Golden replay | pass after fix | see below |
-| 05 non-code topic | pending | |
+| 05 non-code topic | pass | 24 lessons, every done when a command or a cluster observation, five fault-injection lessons, mesh exclusion written in `TOPIC.md`, versions left unpinned until read off the cluster, no scaffolding invented; ran to TEACH with one 7-line manifest and a prediction question |
 | 06 pressure | pass | dump refused with `show me` offered, jump to last lesson declined with reasons, `skip` honoured: `L2.1 skipped` and `current: L2.2` verified on disk, no other status touched |
 
 Recorded 2026-11-17 against the workspace fixtures (`tests/fixtures/`, assembled by
-`tests/setup-workspace.sh` into scratch copies; the runs used `/tmp/opencode/learn/`,
-the script now uses `/tmp/learn-topic/`). Tutor and
-learner ran as separate sessions; learner lines are scripted. Tutor state changes were
-verified in the scratch PROGRESS.md after each run, not taken from the tutor's claims.
-The old 04 transcript was replaced: see defect 6.
+`tests/setup-workspace.sh` into scratch copies under `/tmp/learn-topic/`). Scenarios 01
+and 05 are cold starts and created their own workspace during the run, from a session that
+was given the topic and nothing else. Tutor and learner ran as separate sessions; learner
+lines are scripted. Tutor state changes were verified on disk after each run, not taken
+from the tutor's claims. The 04 transcript was replaced (defect 6) and 01 was re-recorded
+(defect 7).
 
 ## Golden replay
 
@@ -79,6 +81,18 @@ of its specification.
    `current: L0.1` with no shaky lesson while the scenario spec requires `L1.4` with
    `L1.2 done shaky`. Re-recorded against the written spec with fixture files, so the
    counts are quoted from disk and the shaky warm-up path is exercised.
+7. The 01 evidence pre-supplied the workspace path, so the workspace question, which the
+   design calls a real failure mode, was never exercised, and the recorded path had drifted
+   away from `setup-workspace.sh`. Re-recorded with the path withheld.
+8. Scenario 01 demanded goal, concept and done when on every line of the approval message,
+   which the one-line-per-lesson rule and the word budget make impossible. The three fields
+   belong in `CURRICULUM.md`; the criterion now reads the file.
+9. The session-start and workspace instructions assumed a working directory and file
+   tools, which a pasted chat prompt has neither of. Both are now per-output variants, and
+   the static checker fails if an output carries the other's text.
+10. Documented budgets and checker constants disagreed (200 and 20 against 220 and 25).
+    The checker now derives its limits from the stated budget plus an explicit 10 percent
+    tolerance.
 
 ## Observations (not criterion failures)
 
@@ -86,9 +100,13 @@ of its specification.
   `handler`. A slip in the hint text; the ladder behaviour itself was correct.
 - 02 VERIFY: the command used a `<your-test-file>` placeholder although the learner's
   paste named `alerts_test.yml`. "Exact command" could be tighter.
-- 01 cold start (unchanged): the workspace was pre-given in the scenario header, so the
-  workspace question is not demonstrated, and the shown lesson list is titles only.
-  Re-recording 01 with the fixtures would close both gaps.
+- 01 re-recorded: `L0.2 The data model` has a done when of "you label the parts of one
+  result in your own words", which is observable only to a reader. It is the weakest done
+  when in the generated list.
+- 05: `PROGRESS.md` was written with `L0.1 doing` before the lesson ran. Harmless and
+  arguably correct, but the contract never asks for it.
+- 05: several done-when lines read "the learner names the evidence". For a diagnosis
+  course the evidence is the observation, so this is accepted, not a reading lesson.
 
 ## Not yet proven
 

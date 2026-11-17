@@ -11,16 +11,24 @@ Transcript format:
 
 Hard failures: word budget, code block count, oversized code block, more than one
 step label. "Ends by waiting" is reported for review because it needs a reader.
+
+The contract says "about 200 words" and "about 20 lines", so the limits below are the
+stated budget plus 10 percent. "About" does not fail; a real overrun still does.
 """
 
+import math
 import re
 import sys
 from pathlib import Path
 
-MAX_WORDS = 220
+WORD_BUDGET = 200
+BLOCK_LINE_BUDGET = 20
+TOLERANCE = 1.1
+
+MAX_WORDS = math.floor(WORD_BUDGET * TOLERANCE)
+MAX_BLOCK_LINES = math.floor(BLOCK_LINE_BUDGET * TOLERANCE)
 MAX_WORDS_CURRICULUM = 400
 MAX_BLOCKS = 1
-MAX_BLOCK_LINES = 25
 STEP_LABELS = re.compile(r"^\s*(?:#{1,3}\s*)?(GOAL|TEACH|TASK|REVIEW|VERIFY|WRAP)\b", re.MULTILINE)
 LESSON_ID = re.compile(r"\bL\d+\.\d+[a-z]?\b")
 

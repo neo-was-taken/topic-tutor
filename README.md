@@ -27,7 +27,7 @@ Requirements: `bash` and `python3` to build and test. Nothing is installed on th
 ```bash
 cd /path/to/topic-tutor
 ./build.sh
-python3 tests/check-artifact.py
+./tests/run-all.sh
 ```
 
 **As a skill.** `dist/learn-topic/` uses the Agent Skills format: a `SKILL.md` with
@@ -159,27 +159,32 @@ The tutor may suggest a change. It never changes pace without agreement.
 
 ### Statuses
 
-`doing`, `done solid`, `done shaky`, `glossed`, `skipped`. Lessons not listed have not been
+`doing`, `done`, `glossed`, `skipped`, with a mastery tag of `solid` or `shaky` on `done`
+(for example `L1.2 done shaky: confused by exit codes`). Lessons not listed have not been
 started. `shaky` is used honestly: it is the input to the warm-up at the next session.
 
 ## Source layout
 
 ```
-README.md                              this guide
-src/SKILL.md               147 lines   the tutor contract (canonical)
-src/curriculum-design.md    61 lines   scoping, atomicity, ordering, coverage, approval
-src/templates/                         TOPIC, CURRICULUM, PROGRESS skeletons
-build.sh                               generates dist/ in one direction
-dist/learn-topic/                      installable skill (SKILL.md + references/ + templates/)
-dist/learn-topic-prompt.md 282 lines   self-contained paste-anywhere prompt
-tests/check-artifact.py                static checks and drift check
-tests/check-transcript.py              per-message budget checks
-tests/scenarios/README.md              scripted learner scenarios and pass criteria
-tests/fixtures/                        course files and per-scenario PROGRESS states
-tests/setup-workspace.sh               copies fixtures into a scratch workspace
-tests/transcripts/                     recorded runs used as evidence
-tests/RESULTS.md                       current test matrix and defect log
+README.md                    this guide
+src/SKILL.md                 the tutor contract (canonical)
+src/curriculum-design.md     scoping, atomicity, ordering, coverage, approval
+src/templates/               TOPIC, CURRICULUM, PROGRESS skeletons
+build.sh                     generates dist/ in one direction
+dist/learn-topic/            installable skill (SKILL.md + references/ + templates/)
+dist/learn-topic-prompt.md   self-contained paste-anywhere prompt
+tests/run-all.sh             every mechanical check in one command
+tests/check-artifact.py      static checks and drift check
+tests/check-transcript.py    per-message budget checks
+tests/scenarios/README.md    scripted learner scenarios and pass criteria
+tests/fixtures/              course files and per-scenario PROGRESS states
+tests/setup-workspace.sh     copies fixtures into a scratch workspace
+tests/transcripts/           recorded runs used as evidence
+tests/RESULTS.md             current test matrix and defect log
 ```
+
+Line budgets, not exact sizes, are the contract: `check-artifact.py` caps the skill, the
+reference and the prompt, and prints the current counts on every run.
 
 `dist/` is generated. Never edit it. `src/` is the only place to make changes.
 
@@ -188,11 +193,18 @@ prompt inlines both, because a pasted file has no sibling directories. `build.sh
 that substitution and the static checker fails if a placeholder or a build marker leaks
 into an output.
 
+Two instructions differ per output, because a pasted chat prompt has no working directory
+and may not write files: finding an existing course at session start, and asking where the
+files go. The source marks them with `<!-- skill only -->` and `<!-- prompt only -->`
+blocks, `build.sh` renders one of each, and the static checker fails if either output
+carries the other's text.
+
 ## Building
 
 ```bash
 ./build.sh                      # rebuild dist/ from src/
 python3 tests/check-artifact.py # static checks plus deterministic-rebuild check
+./tests/run-all.sh              # the static checks plus every transcript budget check
 ```
 
 The static checker verifies:
@@ -201,12 +213,13 @@ The static checker verifies:
 - required sections present in the skill and the prompt
 - no leftover `@@...@@` placeholders or `<!-- ... -->` markers
 - no project-specific vocabulary (`rustic`, `docker compose`, `uv sync`, `VAULT_`, `GitLab`)
+- each output carries its own per-output variant and not the other one's
 - the skill ships its references and templates
 - line budgets
 - rebuild produces byte-identical output
 
-After editing `src/`, rerun both. Editing `dist/` will be overwritten and the checker will
-not catch it before the rebuild.
+After editing `src/`, run `./tests/run-all.sh`. Editing `dist/` will be overwritten and
+the checker will not catch it before the rebuild.
 
 ## Testing
 
@@ -214,17 +227,19 @@ not catch it before the rebuild.
 
 | Check | Command | Proves |
 |---|---|---|
-| Static | `python3 tests/check-artifact.py` | Frontmatter, sections, cleanliness, determinism |
+| Everything mechanical | `./tests/run-all.sh` | The static checks plus every transcript budget |
+| Static | `python3 tests/check-artifact.py` | Frontmatter, sections, cleanliness, variants, determinism |
 | Transcript budgets | `python3 tests/check-transcript.py tests/transcripts/<file>.md` | Word count, code-block count and size, one step per message |
-| Cold start | `tests/transcripts/01-cold-start.md` | 3 questions, files written, list shown, revision applied, stop before teaching |
+| Cold start | `tests/transcripts/01-cold-start.md` | 3 questions, workspace asked before anything is written, files on disk, list shown, revision applied, stop before teaching |
 | Lesson loop | `tests/transcripts/02-lesson-loop.md` | REVIEW uses the error as evidence, no rewriting, VERIFY before pass, honest `shaky` |
 | Hint ladder | `tests/transcripts/03-stuck-learner.md` | One rung per "I'm stuck", partial snippet at rung 3, full solution only on `show me` |
 | Resume | `tests/transcripts/04-resume.md` | Two-line recap from the files, setup check, warm-up on the shaky lesson, continue at `current` |
+| Non-code topic | `tests/transcripts/05-non-code.md` | No scaffolding invented, every done when a command or an observation, fault lessons, exclusions written to `TOPIC.md` |
 | Pressure | `tests/transcripts/06-pressure.md` | Dump refused, jump declined, `skip` recorded on disk, no invented statuses |
 | Golden replay | see [Golden replay](#golden-replay) | Curriculum quality against a hand-written reference |
 
-Current matrix: cold start, lesson loop, hint ladder, resume, pressure and golden replay
-pass. Non-code topic (05) is pending. Details in `tests/RESULTS.md`.
+Current matrix: all six scenarios and the golden replay pass. Details, observations and
+the defect log are in `tests/RESULTS.md`.
 
 ### Running a behavioural scenario
 
@@ -234,7 +249,8 @@ will always agree with itself.
 1. Assemble a scratch workspace: `tests/setup-workspace.sh <scenario>` copies the
    fixtures from `tests/fixtures/` into `/tmp/learn-topic/<scenario>`. The tutor
    works on the copy, so the committed fixtures stay pristine and state changes can be
-   verified on disk afterwards.
+   verified on disk afterwards. Cold starts (01 and 05) take no fixtures: give the tutor
+   the topic only and let it create the workspace.
 2. Tutor session: give it `dist/learn-topic-prompt.md`, the workspace path, the scenario
    from `tests/scenarios/README.md`, and "produce only your next message to the learner".
 3. Learner session: give it only the learner script and "never help, never break
@@ -292,9 +308,10 @@ Treat the scripted scenarios as regression tests, not as proof that learning hap
 ## Customising
 
 - **Tone and role**: edit `# Role` in `src/SKILL.md`.
-- **Budgets**: the 200-word and 20-line limits appear in `# Hard rules` and in
-  `tests/check-transcript.py` (`MAX_WORDS`, `MAX_BLOCK_LINES`). Change both.
-- **Pace levels**: edit `# Pace` and the table in `# Hard rules` if the wording changes.
+- **Budgets**: the 200-word and 20-line limits live in `# Hard rules` and in
+  `tests/check-transcript.py` (`WORD_BUDGET`, `BLOCK_LINE_BUDGET`, with a `TOLERANCE` of
+  10 percent so that "about" is not a failure). Change both.
+- **Pace levels**: edit the list under `# Pace`.
 - **Commands**: add or remove lines in `# Pace`. Keep the semantics in sync with
   `PROGRESS.md` statuses.
 - **File names**: change them in `src/SKILL.md`, `src/templates/`, and the scenario

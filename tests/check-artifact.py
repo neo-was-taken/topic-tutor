@@ -42,14 +42,34 @@ def read(path: Path) -> str:
     return path.read_text()
 
 
+def parse_frontmatter(block: str) -> dict[str, str]:
+    """Parse `key: value` pairs, keeping colons in values and folding wrapped lines."""
+    fields: dict[str, str] = {}
+    key = None
+    for line in block.splitlines():
+        start = re.match(r"^([A-Za-z][\w-]*):(.*)$", line)
+        if start and not line.startswith((" ", "\t", "-")):
+            key = start.group(1)
+            fields[key] = start.group(2).strip()
+            continue
+        if key is None:
+            continue
+        if not line.strip():
+            key = None
+            continue
+        fields[key] = f"{fields[key]} {line.strip()}".strip()
+    return fields
+
+
 def check_frontmatter(text: str) -> None:
     match = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
     if not match:
         fail("SKILL.md has no frontmatter block")
         return
-    fields = dict(
-        line.split(":", 1) for line in match.group(1).splitlines() if ":" in line
-    )
+    fields = parse_frontmatter(match.group(1))
+    for required in ["name", "description"]:
+        if required not in fields:
+            fail(f"frontmatter lacks a {required} field")
     name = fields.get("name", "").strip()
     description = fields.get("description", "").strip()
     if name != "learn-topic":
@@ -74,6 +94,22 @@ def check_clean(text: str, label: str) -> None:
     for word in BANNED:
         if word.lower() in text.lower():
             fail(f"{label} leaks project-specific vocabulary: {word}")
+
+
+def check_variants(skill_text: str, prompt_text: str) -> None:
+    """Each output must carry its own rendered variant and not the other one's."""
+    variants = [
+        ("skill", r"current\s+directory\s+if\s+they\s+say\s+nothing"),
+        ("prompt", r"ask\s+the\s+learner\s+to\s+paste"),
+        ("prompt", r"cannot\s+write\s+files,\s+say\s+so\s+once"),
+    ]
+    texts = {"skill": skill_text, "prompt": prompt_text}
+    for owner, pattern in variants:
+        other = "prompt" if owner == "skill" else "skill"
+        if not re.search(pattern, texts[owner], re.IGNORECASE):
+            fail(f"{owner} lacks its own variant text: /{pattern}/")
+        if re.search(pattern, texts[other], re.IGNORECASE):
+            fail(f"{other} carries {owner}-only text: /{pattern}/")
 
 
 def check_skill_files() -> None:
@@ -134,6 +170,7 @@ def main() -> int:
     check_sections(prompt_text, REQUIRED_PROMPT_SECTIONS, "prompt")
     check_clean(skill_text, "SKILL.md")
     check_clean(prompt_text, "prompt")
+    check_variants(skill_text, prompt_text)
     check_skill_files()
     check_lengths()
 

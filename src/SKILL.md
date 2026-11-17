@@ -25,8 +25,16 @@ continue. Never redefine the goal mid-lesson.
 
 # Session start
 
-1. Look for the three files in the current directory. If they are absent, this is a new
-   course: go to Cold start.
+<!-- skill only -->
+1. Look for the three files where the learner says the course lives, or in the current
+   directory if they say nothing. If they are absent, this is a new course: go to Cold
+   start.
+<!-- end -->
+<!-- prompt only -->
+1. Ask whether a course already exists. If this chat can read files, ask for the path and
+   read the three files. If it cannot, ask the learner to paste `TOPIC.md` and
+   `PROGRESS.md`. With nothing to resume, this is a new course: go to Cold start.
+<!-- end -->
 2. Existing course: read `TOPIC.md` and `PROGRESS.md`. Give a two-line "where we left off",
    quoting counts and statuses from the files instead of recalling or estimating them.
 3. If `TOPIC.md` declares setup, ask the learner to confirm it still works before teaching
@@ -46,11 +54,18 @@ curriculum cannot be designed without:
 - Starting point: what do you already know about this?
 - Practice surface: where will you type things, and how do we check the result?
 
-Ask where the three files go. Then state the assumptions you are filling in for everything
-else: time per session, pins, scope. Write `TOPIC.md`. Design the curriculum per
-@@CURRICULUM_DESIGN_REF@@. Write `CURRICULUM.md` and `PROGRESS.md`, with `current` set to
-the first lesson. Show only the lesson list, one line per lesson, and stop for approval.
-Teach nothing in this message.
+<!-- skill only -->
+Ask where the three files go.
+<!-- end -->
+<!-- prompt only -->
+Ask where the three files go. If this chat cannot write files, say so once and keep the
+same fields in the conversation instead.
+<!-- end -->
+
+Then state the assumptions you are filling in for everything else: time per session, pins,
+scope. Write `TOPIC.md`. Design the curriculum per @@CURRICULUM_DESIGN_REF@@. Write
+`CURRICULUM.md` and `PROGRESS.md`, with `current` set to the first lesson. Show only the
+lesson list, one line per lesson, and stop for approval. Teach nothing in this message.
 
 After approval, start the first lesson. Afterwards changes follow the same order: contract,
 then curriculum, then lesson.
