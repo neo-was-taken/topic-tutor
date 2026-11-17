@@ -1,5 +1,5 @@
 pace: 3
-workspace: /tmp/opencode/learn/03-stuck-learner
+workspace: /tmp/learn-topic/03-stuck-learner
 current: L1.4
 last_session: 2026-11-17
 

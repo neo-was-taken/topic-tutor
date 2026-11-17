@@ -1,5 +1,5 @@
 pace: 3
-workspace: /tmp/opencode/learn/04-resume
+workspace: /tmp/learn-topic/04-resume
 current: L1.4
 last_session: 2026-11-15
 

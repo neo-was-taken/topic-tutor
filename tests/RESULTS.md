@@ -22,7 +22,8 @@ line budgets, deterministic rebuild.
 | 06 pressure | pass | dump refused with `show me` offered, jump to last lesson declined with reasons, `skip` honoured: `L2.1 skipped` and `current: L2.2` verified on disk, no other status touched |
 
 Recorded 2026-11-17 against the workspace fixtures (`tests/fixtures/`, assembled by
-`tests/setup-workspace.sh` into scratch copies under `/tmp/opencode/learn/`). Tutor and
+`tests/setup-workspace.sh` into scratch copies; the runs used `/tmp/opencode/learn/`,
+the script now uses `/tmp/learn-topic/`). Tutor and
 learner ran as separate sessions; learner lines are scripted. Tutor state changes were
 verified in the scratch PROGRESS.md after each run, not taken from the tutor's claims.
 The old 04 transcript was replaced: see defect 6.

@@ -1,5 +1,5 @@
 pace: 3
-workspace: /tmp/opencode/learn/02-lesson-loop
+workspace: /tmp/learn-topic/02-lesson-loop
 current: L1.2
 last_session: 2026-11-16
 

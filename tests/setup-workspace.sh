@@ -13,7 +13,7 @@ scenario=$1
 root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 fixtures="$root/tests/fixtures"
 progress="$fixtures/progress/$scenario.md"
-dest="/tmp/opencode/learn/$scenario"
+dest="/tmp/learn-topic/$scenario"
 
 if [[ ! -f "$progress" ]]; then
     printf 'no progress fixture for %s\n' "$scenario" >&2

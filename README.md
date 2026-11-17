@@ -1,11 +1,13 @@
 # topic-tutor
 
-A reusable teaching contract for OpenCode. It takes one scoped technical topic, designs an
-atomic curriculum, and teaches it through a fixed six-step lesson loop with state on disk.
+A reusable teaching contract for AI agents and chat tools. It takes one scoped technical
+topic, designs an atomic curriculum, and teaches it through a fixed six-step lesson loop
+with state on disk.
 
 Two artifacts come out of one source:
 
-- `dist/learn-topic/`: an installable OpenCode skill
+- `dist/learn-topic/`: an installable skill in the Agent Skills format (OpenCode, Claude
+  Code, and other compatible agents)
 - `dist/learn-topic-prompt.md`: a self-contained prompt for any chat tool
 
 ## Start here
@@ -20,16 +22,26 @@ Two artifacts come out of one source:
 
 ## Quick start
 
-Requirements: OpenCode, `bash`, `python3`. Nothing is installed on the host.
+Requirements: `bash` and `python3` to build and test. Nothing is installed on the host.
 
 ```bash
 cd /path/to/topic-tutor
 ./build.sh
 python3 tests/check-artifact.py
-ln -sfn "$PWD/dist/learn-topic" ~/.config/opencode/skills/learn-topic
 ```
 
-Restart OpenCode so it discovers the skill. Then say:
+**As a skill.** `dist/learn-topic/` uses the Agent Skills format: a `SKILL.md` with
+`name`/`description` frontmatter, plus `references/` and `templates/`. This is an open
+standard, not an OpenCode-specific format. Symlink it into your agent's skills directory:
+
+```bash
+# OpenCode
+ln -sfn "$PWD/dist/learn-topic" ~/.config/opencode/skills/learn-topic
+# Claude Code
+ln -sfn "$PWD/dist/learn-topic" ~/.claude/skills/learn-topic
+```
+
+Restart your agent so it discovers the skill. Then say:
 
 > teach me PromQL
 
@@ -37,11 +49,12 @@ or any topic phrased as "I want to learn X". The skill asks three questions, ask
 course files go, writes `TOPIC.md`, `CURRICULUM.md` and `PROGRESS.md`, and shows the lesson
 list. It teaches nothing until you approve that list.
 
-For a chat tool without skills, paste `dist/learn-topic-prompt.md` as the first message. If
-that chat cannot write files, say so: the tutor keeps the state in the conversation and
-prints `PROGRESS.md` for you to store at the end of each session.
+**As a prompt.** For any chat tool, with or without skills support, paste
+`dist/learn-topic-prompt.md` as the first message. If that chat cannot write files, say so:
+the tutor keeps the state in the conversation and prints `PROGRESS.md` for you to store at
+the end of each session.
 
-Remove the skill with `rm ~/.config/opencode/skills/learn-topic`.
+Remove the skill by deleting the symlink you created.
 
 ## What it is
 
@@ -219,7 +232,7 @@ The tutor and learner must be separate sessions. A single model asked to play bo
 will always agree with itself.
 
 1. Assemble a scratch workspace: `tests/setup-workspace.sh <scenario>` copies the
-   fixtures from `tests/fixtures/` into `/tmp/opencode/learn/<scenario>`. The tutor
+   fixtures from `tests/fixtures/` into `/tmp/learn-topic/<scenario>`. The tutor
    works on the copy, so the committed fixtures stay pristine and state changes can be
    verified on disk afterwards.
 2. Tutor session: give it `dist/learn-topic-prompt.md`, the workspace path, the scenario
@@ -291,14 +304,15 @@ Treat the scripted scenarios as regression tests, not as proof that learning hap
 - **Curriculum rules**: edit `src/curriculum-design.md`. This is where topic width, lesson
   count and coverage live.
 - **Description and triggers**: the frontmatter of `src/SKILL.md`. Test a phrase change by
-  restarting OpenCode and asking with that phrase.
+  restarting your agent and asking with that phrase.
 
 After any change: `./build.sh && python3 tests/check-artifact.py`.
 
 ## Troubleshooting
 
-**The skill is not listed.** Restart OpenCode. Confirm the symlink points at a directory
-that contains `SKILL.md` with valid frontmatter.
+**The skill is not listed.** Restart your agent. Confirm the symlink sits in the agent's
+skills directory and points at a directory that contains `SKILL.md` with valid
+frontmatter.
 
 **It does not trigger.** Use an explicit phrase from the description, or invoke the skill
 by name. Vague requests such as "help me with PromQL" may not match.
