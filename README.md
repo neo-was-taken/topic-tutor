@@ -1,4 +1,4 @@
-# learn-topic
+# topic-tutor
 
 A reusable teaching contract for OpenCode. It takes one scoped technical topic, designs an
 atomic curriculum, and teaches it through a fixed six-step lesson loop with state on disk.
