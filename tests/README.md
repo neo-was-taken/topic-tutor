@@ -33,8 +33,8 @@ a tutor session prompted for both sides will always agree with itself.
 
 Both sessions run on the same model, so they share blind spots. Mechanical checks catch
 budget and discipline failures. Judgement of quality needs a human reader, and the golden
-replay against the rustic `CURRICULUM.md` is the strongest available check because the
-reference was written independently.
+replay against an independently written curriculum for the same specification is the
+strongest available check because the reference was written independently.
 
 Useful failure signal: a scenario where the tutor writes files or teaches during the cold
 start. That is a real defect in the contract, not in the learner script.

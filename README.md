@@ -3,10 +3,6 @@
 A reusable teaching contract for OpenCode. It takes one scoped technical topic, designs an
 atomic curriculum, and teaches it through a fixed six-step lesson loop with state on disk.
 
-It was extracted from the `rustic-backup-runner` learning workspace, where the same process
-teaches one project across many sessions. The project-specific parts were removed, the
-missing front half (scoping and curriculum design) was added, and the result was tested.
-
 Two artifacts come out of one source:
 
 - `dist/learn-topic/`: an installable OpenCode skill
@@ -20,7 +16,7 @@ Two artifacts come out of one source:
 | Know how it behaves | [How it works](#how-it-works) |
 | Change it | [Source layout](#source-layout), [Customising](#customising) |
 | Know why it is built this way | [Design decisions](#design-decisions) |
-| Know what was tested | [Testing](#testing), [Provenance](#provenance) |
+| Know what was tested | [Testing](#testing) |
 
 ## Quick start
 
@@ -207,7 +203,7 @@ not catch it before the rebuild.
 | Transcript budgets | `python3 tests/check-transcript.py tests/transcripts/<file>.md` | Word count, code-block count and size, one step per message |
 | Cold start | `tests/transcripts/01-cold-start.md` | 3 questions, files written, list shown, revision applied, stop before teaching |
 | Resume | `tests/transcripts/04-resume.md` | Two-line recap, setup check, continue at `current`, no restart |
-| Golden replay | `tests/transcripts/07-golden-replay-curriculum.md` | Curriculum quality against a hand-written reference |
+| Golden replay | see [Golden replay](#golden-replay) | Curriculum quality against a hand-written reference |
 
 Current matrix: cold start, resume and golden replay pass. Loop discipline (02), hint
 ladder (03), non-code topic (05) and pressure (06) are pending because they need a
@@ -244,13 +240,11 @@ reader.
 ### Golden replay
 
 Give the skill only a specification and a learner profile, then compare the generated
-curriculum with a hand-written one that the skill has never seen. The rustic
-`CURRICULUM.md` serves as that reference.
+curriculum with a hand-written one for the same specification, written independently.
 
 Run 1 produced 26 lessons with good atomicity but incomplete coverage: no git, no GitLab
 push or merge request, no runner registration, no real end-to-end run. Run 2, after the
-Coverage rule, produced 29 and added all four. The full run-2 curriculum is saved for
-comparison.
+Coverage rule, produced 29 and added all four.
 
 ### Limits
 
@@ -271,7 +265,7 @@ Treat the scripted scenarios as regression tests, not as proof that learning hap
 | Light scoping path | A reusable skill needs a low-friction entry; full interviews are optional | Interviewing before every course |
 | Phase checkpoints | Mixed retrieval once per phase is cheap and catches decay | Per-lesson assessment only |
 | `TOPIC` / `CURRICULUM` / `PROGRESS` | `TOPIC` is clearer than `REQUIREMENTS` for a non-project subject | `REQUIREMENTS.md` (original), `BRIEF.md` |
-| Version facts recorded as unknown | A passing mention of a version is not a pin; guessing produced `rustic 0.10.x` in run 1 | Inferring from any version string in the spec |
+| Version facts recorded as unknown | A passing mention of a version is not a pin; guessing produced a wrong pin in run 1 | Inferring from any version string in the spec |
 | No file access fallback | The standalone prompt must work in plain chats | Requiring file tools |
 
 ## Customising
@@ -321,29 +315,6 @@ transcript to silence it.
 
 **The build fails after a template edit.** A fenced code block in a template breaks the
 prompt wrapper. Remove the fence or move the example into `src/SKILL.md`.
-
-## Provenance
-
-Extracted from the `rustic-backup-runner` workspace's `PROMPT.md` and its
-`CURRICULUM.md`.
-
-Kept: the six-step loop, atomicity, hard stop per message, task before solution, review
-before fix, hint ladder, predict-then-run, explain the raw alternative, accuracy rules,
-state statuses with mastery tags, session start and end, spec-first conflict handling.
-
-Added: scoping interview, curriculum design rules, coverage check, practice-surface
-abstraction, phase checkpoints, file-less fallback, approval gate.
-
-Cut: Docker and host-Python rules, the stack block, "project runnable after each lesson",
-mandatory git commit messages, the five-level pace scale.
-
-Defects found and fixed during testing:
-
-1. Cold start did not create `PROGRESS.md`.
-2. The curriculum message could not fit the word budget; it is now exempt.
-3. Resume invented a lesson count instead of reading it.
-4. Curriculum design omitted requirements-level coverage.
-5. A version mentioned in passing was treated as a pin.
 
 ## Known limitations
 

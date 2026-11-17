@@ -15,7 +15,7 @@ line budgets, deterministic rebuild.
 |---|---|---|
 | 01 cold start | pass | 3 topic questions, assumptions stated, files written, list shown, revision applied, stopped at GOAL |
 | 04 resume | pass | two-line recap, setup check, continued at `current`, no restart, warm-up correctly skipped |
-| 07 golden replay | pass after fix | see below |
+| Golden replay | pass after fix | see below |
 | 02 lesson loop | pending | needs a mid-lesson session |
 | 03 stuck learner | pending | needs a TASK in progress |
 | 05 non-code topic | pending | |
@@ -23,8 +23,8 @@ line budgets, deterministic rebuild.
 
 ## Golden replay
 
-Input: `REQUIREMENTS.md` plus a learner profile, no hand-written curriculum. Reference:
-the 39-lesson `CURRICULUM.md` in the rustic project.
+Input: a specification document plus a learner profile, no hand-written curriculum.
+Reference: an independently written 39-lesson curriculum for the same specification.
 
 Run 1 produced 26 lessons. Lesson quality was good: atomic, observable done-when, phases
 ending in something usable. Coverage was not. Missing against the specification:
@@ -36,8 +36,8 @@ ending in something usable. Coverage was not. Missing against the specification:
 - the prune and check semantics that live outside the argv builders: retention groups,
   two-phase deletion, `check` exit codes
 
-It also inferred `rustic 0.10.x` from a passing mention of `0.10.1` instead of recording
-the pin as unknown.
+It also inferred a version pin from a passing mention of a patch release instead of
+recording the pin as unknown.
 
 Fixes in `src/`:
 
@@ -49,9 +49,8 @@ Fixes in `src/`:
 
 Run 2 produced 29 lessons and added `L0.5 Git baseline`, `L4.2 GitLab project and push`,
 `L4.3 A runner and the gate in CI`, and `L3.6 End to end against a real repository`. It
-left rustic unpinned until the lesson that checks it, and it reported the unreachable
-GitLab and Vault hosts rather than assuming them. The full run-2 curriculum is saved at
-`tests/transcripts/07-golden-replay-curriculum.md` for future comparison.
+left the tool version unpinned until the lesson that checks it, and it reported the
+unreachable GitLab and Vault hosts rather than assuming them.
 
 Residual differences from the hand-written curriculum, judged acceptable: no dedicated
 dependency-injection or Protocol lesson, no separate prune/check dispatch lesson (both are
