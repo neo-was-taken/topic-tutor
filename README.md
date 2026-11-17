@@ -162,6 +162,8 @@ dist/learn-topic-prompt.md 282 lines   self-contained paste-anywhere prompt
 tests/check-artifact.py                static checks and drift check
 tests/check-transcript.py              per-message budget checks
 tests/scenarios/README.md              scripted learner scenarios and pass criteria
+tests/fixtures/                        course files and per-scenario PROGRESS states
+tests/setup-workspace.sh               copies fixtures into a scratch workspace
 tests/transcripts/                     recorded runs used as evidence
 tests/RESULTS.md                       current test matrix and defect log
 ```
@@ -202,25 +204,31 @@ not catch it before the rebuild.
 | Static | `python3 tests/check-artifact.py` | Frontmatter, sections, cleanliness, determinism |
 | Transcript budgets | `python3 tests/check-transcript.py tests/transcripts/<file>.md` | Word count, code-block count and size, one step per message |
 | Cold start | `tests/transcripts/01-cold-start.md` | 3 questions, files written, list shown, revision applied, stop before teaching |
-| Resume | `tests/transcripts/04-resume.md` | Two-line recap, setup check, continue at `current`, no restart |
+| Lesson loop | `tests/transcripts/02-lesson-loop.md` | REVIEW uses the error as evidence, no rewriting, VERIFY before pass, honest `shaky` |
+| Hint ladder | `tests/transcripts/03-stuck-learner.md` | One rung per "I'm stuck", partial snippet at rung 3, full solution only on `show me` |
+| Resume | `tests/transcripts/04-resume.md` | Two-line recap from the files, setup check, warm-up on the shaky lesson, continue at `current` |
+| Pressure | `tests/transcripts/06-pressure.md` | Dump refused, jump declined, `skip` recorded on disk, no invented statuses |
 | Golden replay | see [Golden replay](#golden-replay) | Curriculum quality against a hand-written reference |
 
-Current matrix: cold start, resume and golden replay pass. Loop discipline (02), hint
-ladder (03), non-code topic (05) and pressure (06) are pending because they need a
-mid-lesson session. Details in `tests/RESULTS.md`.
+Current matrix: cold start, lesson loop, hint ladder, resume, pressure and golden replay
+pass. Non-code topic (05) is pending. Details in `tests/RESULTS.md`.
 
 ### Running a behavioural scenario
 
 The tutor and learner must be separate sessions. A single model asked to play both sides
 will always agree with itself.
 
-1. Tutor session: give it `dist/learn-topic-prompt.md`, the scenario from
-   `tests/scenarios/README.md`, and "produce only your next message to the learner".
-2. Learner session: give it only the learner script and "never help, never break
+1. Assemble a scratch workspace: `tests/setup-workspace.sh <scenario>` copies the
+   fixtures from `tests/fixtures/` into `/tmp/opencode/learn/<scenario>`. The tutor
+   works on the copy, so the committed fixtures stay pristine and state changes can be
+   verified on disk afterwards.
+2. Tutor session: give it `dist/learn-topic-prompt.md`, the workspace path, the scenario
+   from `tests/scenarios/README.md`, and "produce only your next message to the learner".
+3. Learner session: give it only the learner script and "never help, never break
    character".
-3. Relay messages between them, or script it.
-4. Record the exchange as `## TUTOR` and `## LEARNER` sections.
-5. Run `check-transcript.py` and score the scenario's pass criteria by reading it.
+4. Relay messages between them, or script it.
+5. Record the exchange as `## TUTOR` and `## LEARNER` sections.
+6. Run `check-transcript.py` and score the scenario's pass criteria by reading it.
 
 ### Transcript format
 
@@ -328,5 +336,4 @@ prompt wrapper. Remove the fence or move the example into `src/SKILL.md`.
 
 ## Status
 
-Experimental. No license declared. Version controlled; add a license before any public
-release.
+Experimental. MIT licensed, see `LICENSE`.

@@ -6,6 +6,14 @@ sides as `## TUTOR` / `## LEARNER` sections, then run `tests/check-transcript.py
 
 Keep the learner dumb and stubborn. A helpful learner hides tutor failures.
 
+Workspace fixtures: scenarios 02, 03, 04 and 06 run against the PromQL course in
+`tests/fixtures/promql/` (the 20-lesson curriculum frozen in transcript 01) with a
+per-scenario state from `tests/fixtures/progress/`. Run
+`tests/setup-workspace.sh <scenario>` to assemble a scratch copy under
+`/tmp/opencode/learn/<scenario>`; point the tutor session at that copy, never at the
+fixtures. After the run, check the scratch `PROGRESS.md` to verify claimed state
+changes. Scenario 01 creates its own workspace during the run.
+
 ## 01 cold start
 
 Topic: PromQL. Learner answers, one at a time, as asked:
