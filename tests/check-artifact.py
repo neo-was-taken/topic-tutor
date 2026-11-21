@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static checks for the learn-topic artifacts. Run after build.sh."""
+"""Static checks for the topic-tutor artifacts. Run after build.sh."""
 
 import hashlib
 import re
@@ -9,8 +9,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
-SKILL = DIST / "learn-topic" / "SKILL.md"
-PROMPT = DIST / "learn-topic-prompt.md"
+SKILL = DIST / "topic-tutor" / "SKILL.md"
+PROMPT = DIST / "topic-tutor-prompt.md"
 
 REQUIRED_SECTIONS = [
     "# Role",
@@ -25,8 +25,8 @@ REQUIRED_SECTIONS = [
     "# Hard rules",
 ]
 REQUIRED_PROMPT_SECTIONS = REQUIRED_SECTIONS + ["## Curriculum design", "## File templates"]
-BANNED = ["rustic", "docker compose", "uv sync", "VAULT_", "GitLab"]
-MAX_LINES = {"skill": 150, "reference": 100, "prompt": 320}
+BANNED = ["rustic", "docker compose", "uv sync", "VAULT_", "GitLab", "learn-topic"]
+MAX_LINES = {"skill": 165, "reference": 100, "prompt": 320}
 
 failures: list[str] = []
 
@@ -72,8 +72,13 @@ def check_frontmatter(text: str) -> None:
             fail(f"frontmatter lacks a {required} field")
     name = fields.get("name", "").strip()
     description = fields.get("description", "").strip()
-    if name != "learn-topic":
-        fail(f"frontmatter name is {name!r}, expected 'learn-topic'")
+    version = fields.get("version", "").strip()
+    if name != "topic-tutor":
+        fail(f"frontmatter name is {name!r}, expected 'topic-tutor'")
+    if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+        fail(f"frontmatter version is {version!r}, expected semver")
+    if "tags" in fields:
+        fail("frontmatter tags belong to the Agensi release package, not the public skill")
     if len(description) < 80:
         fail("frontmatter description is too short to trigger reliably")
     for phrase in ["teach me", "learning plan", "TOPIC.md"]:
@@ -99,9 +104,12 @@ def check_clean(text: str, label: str) -> None:
 def check_variants(skill_text: str, prompt_text: str) -> None:
     """Each output must carry its own rendered variant and not the other one's."""
     variants = [
-        ("skill", r"current\s+directory\s+if\s+they\s+say\s+nothing"),
+        ("skill", r"propose\s+one\s+inside\s+the\s+current\s+project"),
+        ("skill", r"fetch\s+each\s+named\s+file\s+with\s+your\s+skill\s+tool"),
+        ("skill", r"use\s+the\s+course\s+directory\s+confirmed\s+at\s+session\s+start"),
         ("prompt", r"ask\s+the\s+learner\s+to\s+paste"),
         ("prompt", r"cannot\s+write\s+files,\s+say\s+so\s+once"),
+        ("prompt", r"at\s+the\s+end\s+of\s+this\s+prompt"),
     ]
     texts = {"skill": skill_text, "prompt": prompt_text}
     for owner, pattern in variants:
@@ -112,14 +120,25 @@ def check_variants(skill_text: str, prompt_text: str) -> None:
             fail(f"{other} carries {owner}-only text: /{pattern}/")
 
 
-def check_skill_files() -> None:
-    skill_dir = DIST / "learn-topic"
-    for relative in [
-        "references/curriculum-design.md",
-        "templates/TOPIC.md",
-        "templates/CURRICULUM.md",
-        "templates/PROGRESS.md",
-    ]:
+SUPPORTING_FILES = [
+    "references/curriculum-design.md",
+    "templates/TOPIC.md",
+    "templates/CURRICULUM.md",
+    "templates/PROGRESS.md",
+]
+
+
+def check_requires(text: str, label: str) -> None:
+    for phrase in ["Requires:", "writable course directory", "VERIFY"]:
+        if phrase not in text:
+            fail(f"{label} lacks required phrase: {phrase}")
+
+
+def check_skill_files(skill_text: str) -> None:
+    skill_dir = DIST / "topic-tutor"
+    for relative in SUPPORTING_FILES:
+        if relative not in skill_text:
+            fail(f"SKILL.md does not name supporting file: {relative}")
         if not (skill_dir / relative).is_file():
             fail(f"skill is missing {relative}")
 
@@ -127,7 +146,7 @@ def check_skill_files() -> None:
 def check_lengths() -> None:
     limits = {
         "skill": (SKILL, MAX_LINES["skill"]),
-        "reference": (DIST / "learn-topic" / "references" / "curriculum-design.md", MAX_LINES["reference"]),
+        "reference": (DIST / "topic-tutor" / "references" / "curriculum-design.md", MAX_LINES["reference"]),
         "prompt": (PROMPT, MAX_LINES["prompt"]),
     }
     for label, (path, limit) in limits.items():
@@ -168,10 +187,12 @@ def main() -> int:
     check_frontmatter(skill_text)
     check_sections(skill_text, REQUIRED_SECTIONS, "SKILL.md")
     check_sections(prompt_text, REQUIRED_PROMPT_SECTIONS, "prompt")
+    check_requires(skill_text, "SKILL.md")
+    check_requires(prompt_text, "prompt")
     check_clean(skill_text, "SKILL.md")
     check_clean(prompt_text, "prompt")
     check_variants(skill_text, prompt_text)
-    check_skill_files()
+    check_skill_files(skill_text)
     check_lengths()
 
     if "--no-drift" not in sys.argv:

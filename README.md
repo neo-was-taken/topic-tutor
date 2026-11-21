@@ -6,9 +6,9 @@ with state on disk.
 
 Two artifacts come out of one source:
 
-- `dist/learn-topic/`: an installable skill in the Agent Skills format (OpenCode, Claude
+- `dist/topic-tutor/`: an installable skill in the Agent Skills format (OpenCode, Claude
   Code, and other compatible agents)
-- `dist/learn-topic-prompt.md`: a self-contained prompt for any chat tool
+- `dist/topic-tutor-prompt.md`: a self-contained prompt for any chat tool
 
 ## Start here
 
@@ -30,27 +30,28 @@ cd /path/to/topic-tutor
 ./tests/run-all.sh
 ```
 
-**As a skill.** `dist/learn-topic/` uses the Agent Skills format: a `SKILL.md` with
-`name`/`description` frontmatter, plus `references/` and `templates/`. This is an open
-standard, not an OpenCode-specific format. Symlink it into your agent's skills directory:
+**As a skill.** `dist/topic-tutor/` uses the Agent Skills format: a `SKILL.md` with
+`name`/`version`/`description` frontmatter, plus `references/` and `templates/`. This is an
+open standard, not an OpenCode-specific format. Symlink it into your agent's skills
+directory:
 
 ```bash
 # OpenCode
-ln -sfn "$PWD/dist/learn-topic" ~/.config/opencode/skills/learn-topic
+ln -sfn "$PWD/dist/topic-tutor" ~/.config/opencode/skills/topic-tutor
 # Claude Code
-ln -sfn "$PWD/dist/learn-topic" ~/.claude/skills/learn-topic
+ln -sfn "$PWD/dist/topic-tutor" ~/.claude/skills/topic-tutor
 ```
 
 Restart your agent so it discovers the skill. Then say:
 
 > teach me PromQL
 
-or any topic phrased as "I want to learn X". The skill asks three questions, asks where the
-course files go, writes `TOPIC.md`, `CURRICULUM.md` and `PROGRESS.md`, and shows the lesson
+or any topic phrased as "I want to learn X". The skill asks where the course files go, asks
+three questions, writes `TOPIC.md`, `CURRICULUM.md` and `PROGRESS.md`, and shows the lesson
 list. It teaches nothing until you approve that list.
 
 **As a prompt.** For any chat tool, with or without skills support, paste
-`dist/learn-topic-prompt.md` as the first message. If that chat cannot write files, say so:
+`dist/topic-tutor-prompt.md` as the first message. If that chat cannot write files, say so:
 the tutor keeps the state in the conversation and prints `PROGRESS.md` for you to store at
 the end of each session.
 
@@ -89,8 +90,8 @@ curriculum, then continues. It never redefines the goal mid-lesson.
 
 ### Cold start
 
-1. Three questions at most: goal and proof, starting point, practice surface.
-2. Ask where the three files go.
+1. Ask where the three files go.
+2. Three questions at most: goal and proof, starting point, practice surface.
 3. State the assumptions for everything else: session length, pins, scope.
 4. Write the three files.
 5. Show the lesson list, one line per lesson.
@@ -171,8 +172,8 @@ src/SKILL.md                 the tutor contract (canonical)
 src/curriculum-design.md     scoping, atomicity, ordering, coverage, approval
 src/templates/               TOPIC, CURRICULUM, PROGRESS skeletons
 build.sh                     generates dist/ in one direction
-dist/learn-topic/            installable skill (SKILL.md + references/ + templates/)
-dist/learn-topic-prompt.md   self-contained paste-anywhere prompt
+dist/topic-tutor/            installable skill (SKILL.md + references/ + templates/)
+dist/topic-tutor-prompt.md   self-contained paste-anywhere prompt
 tests/run-all.sh             every mechanical check in one command
 tests/check-artifact.py      static checks and drift check
 tests/check-transcript.py    per-message budget checks
@@ -228,7 +229,7 @@ the checker will not catch it before the rebuild.
 | Check | Command | Proves |
 |---|---|---|
 | Everything mechanical | `./tests/run-all.sh` | The static checks plus every transcript budget |
-| Static | `python3 tests/check-artifact.py` | Frontmatter, sections, cleanliness, variants, determinism |
+| Static | `python3 tests/check-artifact.py` | Frontmatter, version, sections, supporting files, variants, determinism |
 | Transcript budgets | `python3 tests/check-transcript.py tests/transcripts/<file>.md` | Word count, code-block count and size, one step per message |
 | Cold start | `tests/transcripts/01-cold-start.md` | 3 questions, workspace asked before anything is written, files on disk, list shown, revision applied, stop before teaching |
 | Lesson loop | `tests/transcripts/02-lesson-loop.md` | REVIEW uses the error as evidence, no rewriting, VERIFY before pass, honest `shaky` |
@@ -247,11 +248,11 @@ The tutor and learner must be separate sessions. A single model asked to play bo
 will always agree with itself.
 
 1. Assemble a scratch workspace: `tests/setup-workspace.sh <scenario>` copies the
-   fixtures from `tests/fixtures/` into `/tmp/learn-topic/<scenario>`. The tutor
+   fixtures from `tests/fixtures/` into `/tmp/topic-tutor/<scenario>`. The tutor
    works on the copy, so the committed fixtures stay pristine and state changes can be
    verified on disk afterwards. Cold starts (01 and 05) take no fixtures: give the tutor
    the topic only and let it create the workspace.
-2. Tutor session: give it `dist/learn-topic-prompt.md`, the workspace path, the scenario
+2. Tutor session: give it `dist/topic-tutor-prompt.md`, the workspace path, the scenario
    from `tests/scenarios/README.md`, and "produce only your next message to the learner".
 3. Learner session: give it only the learner script and "never help, never break
    character".
@@ -367,4 +368,4 @@ prompt wrapper. Remove the fence or move the example into `src/SKILL.md`.
 
 ## Status
 
-Experimental. MIT licensed, see `LICENSE`.
+Version 1.0.0. Experimental. MIT licensed, see `LICENSE`.

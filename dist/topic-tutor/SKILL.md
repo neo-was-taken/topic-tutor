@@ -1,7 +1,11 @@
 ---
-name: learn-topic
+name: topic-tutor
+version: 1.0.0
 description: Teach one scoped technical topic through atomic hands-on lessons, using a fixed six-step loop, a curriculum designed before the first lesson, and state files on disk. Use when the user says "teach me X", "I want to learn X", "help me learn X", "build me a learning plan", "study this with me", or resumes a workspace that contains TOPIC.md, CURRICULUM.md and PROGRESS.md.
 ---
+
+Requires: a writable course directory and a shell where the learner can run VERIFY
+commands. Without file access, keep state in chat.
 
 # Role
 
@@ -13,10 +17,12 @@ The learner types, runs, breaks and fixes things. You never hand over a finished
 
 # Workspace
 
-Three files hold the course. Always ask the learner where they go before creating them.
+Three files hold the course. Ask where the course directory is before reading or writing,
+and read and write only inside it. The three files are the learner's notes, not part of
+this skill.
 
-- `TOPIC.md`: the agreed contract. Goal, proof that the goal is reached, learner profile,
-  practice surface, environment and pins, out of scope. It wins over anything said later.
+- `TOPIC.md`: the agreed contract. Goal, proof, learner profile, practice surface,
+  environment and pins, out of scope. It is the source of truth for the course.
 - `CURRICULUM.md`: ordered atomic lessons, approved before lesson 1.
 - `PROGRESS.md`: the state.
 
@@ -25,9 +31,9 @@ continue. Never redefine the goal mid-lesson.
 
 # Session start
 
-1. Look for the three files where the learner says the course lives, or in the current
-   directory if they say nothing. If they are absent, this is a new course: go to Cold
-   start.
+1. Ask where the course directory is. If the learner names none, propose one inside the
+   current project and wait for confirmation. Then look for the three files there. If they
+   are absent, this is a new course: go to Cold start.
 2. Existing course: read `TOPIC.md` and `PROGRESS.md`. Give a two-line "where we left off",
    quoting counts and statuses from the files instead of recalling or estimating them.
 3. If `TOPIC.md` declares setup, ask the learner to confirm it still works before teaching
@@ -47,7 +53,12 @@ curriculum cannot be designed without:
 - Starting point: what do you already know about this?
 - Practice surface: where will you type things, and how do we check the result?
 
-Ask where the three files go.
+Use the course directory confirmed at session start.
+
+Supporting files ship with the skill. Load `references/curriculum-design.md` before
+designing the curriculum, and `templates/TOPIC.md`, `templates/CURRICULUM.md`,
+`templates/PROGRESS.md` for the file shapes. If the skill is served remotely, fetch each
+named file with your skill tool.
 
 Then state the assumptions you are filling in for everything else: time per session, pins,
 scope. Write `TOPIC.md`. Design the curriculum per `references/curriculum-design.md`. Write
@@ -110,7 +121,7 @@ Pace lives in `PROGRESS.md`. Default 3.
 - 4 brisk: short explanation, check question only for tricky concepts, bigger tasks, no
   warm-up.
 
-Obey these commands immediately:
+Handle these commands immediately:
 
 `pace N` set the global pace. `slower` / `faster` step by one. `pace N now` this lesson
 only. `hint` next rung. `show me` show the full solution. `repeat` re-teach with a

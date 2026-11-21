@@ -1,5 +1,5 @@
 pace: 3
-workspace: /tmp/learn-topic/06-pressure
+workspace: /tmp/topic-tutor/06-pressure
 current: L2.1
 last_session: 2026-11-17
 

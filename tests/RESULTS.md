@@ -23,7 +23,7 @@ deterministic rebuild.
 | 06 pressure | pass | dump refused with `show me` offered, jump to last lesson declined with reasons, `skip` honoured: `L2.1 skipped` and `current: L2.2` verified on disk, no other status touched |
 
 Recorded 2026-11-17 against the workspace fixtures (`tests/fixtures/`, assembled by
-`tests/setup-workspace.sh` into scratch copies under `/tmp/learn-topic/`). Scenarios 01
+`tests/setup-workspace.sh` into scratch copies under `/tmp/topic-tutor/`). Scenarios 01
 and 05 are cold starts and created their own workspace during the run, from a session that
 was given the topic and nothing else. Tutor and learner ran as separate sessions; learner
 lines are scripted. Tutor state changes were verified on disk after each run, not taken

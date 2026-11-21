@@ -1,12 +1,12 @@
 # Scenario 01: cold start
 
-Topic: PromQL. Re-recorded 2026-11-17 against `dist/learn-topic-prompt.md`. The tutor
+Topic: PromQL. Re-recorded 2026-11-17 against `dist/topic-tutor-prompt.md`. The tutor
 session was given the topic only: no workspace path, no scenario script, no pass criteria.
 Learner lines are the fixed script from `tests/scenarios/README.md`, relayed verbatim.
 
 Verified on disk after the run, not taken from the tutor's claims:
 
-- `/tmp/learn-topic/01-cold-start/` did not exist while the workspace question was asked,
+- `/tmp/topic-tutor/01-cold-start/` did not exist while the workspace question was asked,
   and held `TOPIC.md`, `CURRICULUM.md` and `PROGRESS.md` before the lesson list was shown.
 - All 25 frozen lessons in `CURRICULUM.md` carry goal, concept and done when.
 - `PROGRESS.md` has `pace: 3`, `current: L0.1`, no lessons started.
@@ -68,11 +68,11 @@ Last thing before I write anything: where should the three course files go? Give
 
 ## LEARNER
 
-/tmp/learn-topic/01-cold-start
+/tmp/topic-tutor/01-cold-start
 
 ## TUTOR
 
-Written to `/tmp/learn-topic/01-cold-start/`: `TOPIC.md`, `CURRICULUM.md`, `PROGRESS.md`.
+Written to `/tmp/topic-tutor/01-cold-start/`: `TOPIC.md`, `CURRICULUM.md`, `PROGRESS.md`.
 
 Assumptions I filled in, say the word if any are wrong: 15-30 minutes per session, pace 3 (standard), goal is alerting so every lesson serves that, Prometheus version treated as unknown until we read it off your server, and out of scope are Alertmanager routing and notifications, Grafana, exporter authoring, long-term storage.
 

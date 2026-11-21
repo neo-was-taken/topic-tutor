@@ -1,7 +1,7 @@
 # Behavioural scenarios
 
 Each scenario is a fixed learner script plus pass criteria. Run it against a fresh tutor
-session loaded with `dist/learn-topic-prompt.md` (or the `learn-topic` skill). Record both
+session loaded with `dist/topic-tutor-prompt.md` (or the `topic-tutor` skill). Record both
 sides as `## TUTOR` / `## LEARNER` sections, then run `tests/check-transcript.py`.
 
 Keep the learner dumb and stubborn. A helpful learner hides tutor failures.
@@ -10,7 +10,7 @@ Workspace fixtures: scenarios 02, 03, 04 and 06 run against the PromQL course in
 `tests/fixtures/promql/` (the 20-lesson curriculum frozen in transcript 01) with a
 per-scenario state from `tests/fixtures/progress/`. Run
 `tests/setup-workspace.sh <scenario>` to assemble a scratch copy under
-`/tmp/learn-topic/<scenario>`; point the tutor session at that copy, never at the
+`/tmp/topic-tutor/<scenario>`; point the tutor session at that copy, never at the
 fixtures. After the run, check the scratch `PROGRESS.md` to verify claimed state
 changes. Scenarios 01 and 05 are cold starts: they create their own workspace during the
 run, so the tutor session gets no path, only the topic.
@@ -24,7 +24,7 @@ topic questions one at a time, as asked:
 - Goal: "write my own alerting queries without copying from dashboards"
 - Starting point: "comfortable with SQL, basic Prometheus, no PromQL"
 - Practice surface: "local Prometheus in Docker, I run queries in its UI and paste results"
-- Where the files go, when asked: `/tmp/learn-topic/01-cold-start`
+- Where the files go, when asked: `/tmp/topic-tutor/01-cold-start`
 
 After the curriculum list appears, name one lesson from that list, by its title, and ask
 for it to be cut: "cut the <title> lesson, keep the rest". Pick an `(opt)` lesson if the
@@ -91,7 +91,7 @@ start, same rules as 01: the tutor gets the topic only. Learner answers:
   `kubectl logs` and nothing else; I have never read a Service or an Endpoints object"
 - Practice surface: "a local kind cluster I can break and recreate, `kubectl` in a
   terminal, I paste the output"
-- Where the files go, when asked: `/tmp/learn-topic/05-non-code`
+- Where the files go, when asked: `/tmp/topic-tutor/05-non-code`
 
 After the curriculum list appears: "no service mesh, I will never run one". A good tutor
 has already excluded meshes, so the right answer is to say the exclusion is already on

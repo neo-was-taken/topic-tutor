@@ -19,7 +19,7 @@ whether each tutor message ends by asking or tasking, which needs a reader to co
 The tutor and learner must be separate sessions, otherwise one model plays both sides and
 the tutor can see the script.
 
-1. Start a tutor session with the contents of `dist/learn-topic-prompt.md` and the
+1. Start a tutor session with the contents of `dist/topic-tutor-prompt.md` and the
    instruction: "You are being evaluated on following this contract. Produce only your next
    message to the learner." Give it the workspace path for a fixture scenario, or the topic
    alone for a cold start. Never give it the scenario section: the pass criteria and the

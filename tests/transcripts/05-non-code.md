@@ -1,13 +1,13 @@
 # Scenario 05: non-code topic
 
 Topic: debugging Kubernetes networking with kubectl. Recorded 2026-11-17 against
-`dist/learn-topic-prompt.md`. The tutor session was given the topic only: no workspace
+`dist/topic-tutor-prompt.md`. The tutor session was given the topic only: no workspace
 path, no scenario script, no pass criteria. Learner lines are the fixed script from
 `tests/scenarios/README.md`, relayed verbatim. Run to the first lesson's TEACH step.
 
 Verified on disk after the run, not taken from the tutor's claims:
 
-- `/tmp/learn-topic/05-non-code/` holds the three files, written only after the workspace
+- `/tmp/topic-tutor/05-non-code/` holds the three files, written only after the workspace
   question was answered.
 - All 24 lessons in `CURRICULUM.md` carry goal, concept and done when; every done when
   names a command or an observation on the cluster.
@@ -85,11 +85,11 @@ Where should the three course files go? I will create `TOPIC.md`, `CURRICULUM.md
 
 ## LEARNER
 
-/tmp/learn-topic/05-non-code
+/tmp/topic-tutor/05-non-code
 
 ## TUTOR
 
-Written to `/tmp/learn-topic/05-non-code/`: `TOPIC.md`, `CURRICULUM.md`, `PROGRESS.md`.
+Written to `/tmp/topic-tutor/05-non-code/`: `TOPIC.md`, `CURRICULUM.md`, `PROGRESS.md`.
 
 Assumptions I filled in, correct me on any: 20-30 minutes per session, one lesson per sitting; pace 3; no version pins yet, since a version I guess is not a pin, so L0.1 reads kind, Kubernetes and CNI off your cluster. Out of scope: Ingress and L7, service meshes, LoadBalancer and cloud integration, CNI internals, writing production manifests. I inject faults, you diagnose them; I never explain a fault before you find it.
 

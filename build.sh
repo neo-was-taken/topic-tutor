@@ -4,8 +4,8 @@ set -euo pipefail
 root=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 src="$root/src"
 dist="$root/dist"
-skill="$dist/learn-topic"
-prompt="$dist/learn-topic-prompt.md"
+skill="$dist/topic-tutor"
+prompt="$dist/topic-tutor-prompt.md"
 
 render() {
     awk -v mode="$2" '
